@@ -22,6 +22,10 @@ class BaseModel(object):
     def backend(self):
         return self._backend
 
+    @property
+    def model(self):
+        return self._model
+
     def save(self, path):
         """
         Save the model to the file system

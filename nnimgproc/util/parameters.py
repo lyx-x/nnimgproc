@@ -34,5 +34,6 @@ class Parameters(object):
         self._logger.info("Parameters retrieved: {}, {}.".format(key, value))
 
 
+# Construct a set of default values
 default_parameters = Parameters()
-default_parameters.add("learning_rate", 0.0001)
+default_parameters.add("learning_rate", 1e-4)

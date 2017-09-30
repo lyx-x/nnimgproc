@@ -1,4 +1,4 @@
-# Learn to process images with neural network
+# Learn image processing with neural network
 
 This project aims at giving a common platform for learning image processing task with neural network.
 The structure of the project is very simple:
