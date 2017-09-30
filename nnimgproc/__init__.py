@@ -33,7 +33,7 @@ def build_trainer(model, training_parameters=default_parameters, dataset=None,
     :param model: Model (from nnimgproc.backend.keras)
     :param training_parameters: Parameters (from nnimgproc.util.parameters), training parameter set
     :param dataset: Dataset (from nnimgproc.dataset), image minibatch provider
-    :param target_processing: lambda img -> (input, output, meta), image processing pipeline to imitate.
+    :param target_processing: lambda function img -> (input, output, meta), image processing pipeline to imitate.
                              The meta contains some parameters used in the processing pipeline which
                              can then be used to help learning or evaluating the result
     :param batch_processing: lambda function (x, y, meta, shape, batch_size, is_random) -> (x, y, meta),

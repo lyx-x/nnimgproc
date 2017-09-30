@@ -7,12 +7,14 @@ The backend exposes:
     - Function: load
 """
 import os
+import time
 
 from nnimgproc.model import BaseModel
 from nnimgproc.trainer import BaseTrainer
 
-# name of the backend depends on the file name
+# Name of the backend depends on the file name
 BACKEND = os.path.basename(__file__)
+# Name of the saved model file
 MODEL_FILENAME = 'model.h5'
 
 
@@ -24,7 +26,7 @@ class Trainer(BaseTrainer):
         :param model: Model (from nnimgproc.backend.keras)
         :param training_parameters: Parameters (from nnimgproc.util.parameters), training parameter set
         :param dataset: Dataset (from nnimgproc.dataset), image minibatch provider
-        :param target_processing: lambda img -> (input, output, meta), image processing pipeline to imitate.
+        :param target_processing: lambda function img -> (input, output, meta), image processing pipeline to imitate.
                                  The meta contains some parameters used in the processing pipeline which
                                  can then be used to help learning or evaluating the result
         :param batch_processing: lambda function (x, y, meta, shape, batch_size, is_random) -> (x, y, meta),
@@ -63,13 +65,16 @@ class Trainer(BaseTrainer):
                                                                 is_random=True)
                 yield batch_x, batch_y
 
-        # Start training
+        # Start training and timer
+        start = time.time()
         self._logger.info("Start training the keras model.")
         self._model.model.fit_generator(self, minibatch_generator(False), self.training_batches, epochs=self.epochs,
                                         validation_data=minibatch_generator(False),
                                         validation_steps=self.validation_batches,
                                         workers=self.workers)
-        self._logger.info("End of training.")
+        end = time.time()
+        elapsed = end - start
+        self._logger.info("End of training after %.3f seconds." % elapsed)
 
     def eval(self, image):
         """
@@ -78,14 +83,19 @@ class Trainer(BaseTrainer):
         :param: image: ndarray of shape (w, h, 1) or (w, h, 3), image to be processed
         :return: ndarray, processed image
         """
+        # Timed operation
+        start = time.time()
+        self._logger.info("Start individual processing.")
         images = image.reshape(1, )
         x, y, meta = self._target_processing(images)
         # batch_x can be larger than the minibatch_size when is_random is set to False
-        batch_x, batch_y, meta = self._batch_processing(x, y, meta,
-                                                        self.input_shape, -1,
-                                                        is_random=False)
+        batch_x, batch_y, meta = self._batch_processing(x, y, meta, self.input_shape, -1, is_random=False)
         post_x = self._model.model.predict(batch_x)
-        return self._post_processing(post_x, meta)
+        output = self._post_processing(post_x, meta)
+        end = time.time()
+        elapsed = end - start
+        self._logger.info("Processing completed in %.3f seconds." % elapsed)
+        return output
 
 
 class Model(BaseModel):

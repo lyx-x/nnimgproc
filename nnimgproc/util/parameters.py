@@ -6,6 +6,9 @@ class Parameters(object):
     A wrapper around dictionary to help write shorter function signature
     """
     def __init__(self):
+        """
+        Constructor
+        """
         self._dict = {}
         self._logger = logging.getLogger(__name__)
 
@@ -13,8 +16,8 @@ class Parameters(object):
         """
         Insert a new key-value pair
 
-        :param key: key
-        :param value: value
+        :param key: string
+        :param value: value (any type)
         :return:
         """
         self._dict[key] = value
@@ -23,9 +26,9 @@ class Parameters(object):
         """
         Query the dictionary with a default value
 
-        :param key: key
+        :param key: string
         :param default: default value is the key is not present
-        :return: value
+        :return: value (any type)
         """
         if key in self._dict:
             value = self._dict[key]
