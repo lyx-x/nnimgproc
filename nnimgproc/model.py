@@ -16,7 +16,7 @@ class BaseModel(object):
 
         self._model = model
         self._backend = backend
-        self._logger.info('Model created using %s as backend]' % self._backend)
+        self._logger.info('Model (base) created.')
 
     @property
     def backend(self):
@@ -29,15 +29,6 @@ class BaseModel(object):
     def save(self, path):
         """
         Save the model to the file system
-
-        :param path: path to the model file
-        :return:
-        """
-        pass
-
-    def load(self, path):
-        """
-        Load a model from the file system
 
         :param path: path to the model file
         :return:

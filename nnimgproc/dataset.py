@@ -42,7 +42,7 @@ class Dataset(object):
         else:
             return False
 
-    def getall(self, is_validation=True):
+    def get_all(self, is_validation=True):
         """
         Get all images from the dataset
         :param is_validation: bool, whether or not we are in the validation mode

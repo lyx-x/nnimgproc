@@ -11,7 +11,7 @@ class BaseTrainer(object):
         """
         Initialize a neural network trainer/optimizer
 
-        :param model: Model (from nnimgproc.backend.keras)
+        :param model: Model (inherited from nnimgproc.model.BaseModel)
         :param training_parameters: Parameters (from nnimgproc.util.parameters), training parameter set
         :param dataset: Dataset (from nnimgproc.dataset), image minibatch provider
         :param target_processing: lambda function img -> (input, output, meta), image processing pipeline to imitate.
@@ -32,7 +32,9 @@ class BaseTrainer(object):
         self._post_processing = post_processing
 
         assert isinstance(self._training_parameters, Parameters), 'training_parameters should use the Parameters module'
-        self._logger.info('Trainer created using %s as backend]' % self._model.backend)
+        self._output_dir = self._training_parameters.get('output_dir', './results')
+
+        self._logger.info('Trainer (base) created.')
 
     def train(self):
         """
@@ -50,3 +52,12 @@ class BaseTrainer(object):
         :return: ndarray, processed images
         """
         pass
+
+    def save(self, path):
+        """
+        Save the model to the file system
+
+        :param path: string, root folder for the model file
+        :return:
+        """
+        self._model.save(path=path)
