@@ -1,4 +1,6 @@
 import logging
+from pickle import dump, load
+from typing import Any
 
 
 class Parameters(object):
@@ -12,9 +14,10 @@ class Parameters(object):
         self._dict = {}
         self._logger = logging.getLogger(__name__)
 
-    def add(self, key, value):
+    def set(self, key: str, value: Any):
         """
-        Insert a new key-value pair
+        Insert a new key-value pair. If value is mutable, be careful when
+        changing its value in another scope.
 
         :param key: string
         :param value: value (any type)
@@ -22,7 +25,7 @@ class Parameters(object):
         """
         self._dict[key] = value
 
-    def get(self, key, default):
+    def get(self, key: str, default: Any=None) -> Any:
         """
         Query the dictionary with a default value
 
@@ -32,11 +35,30 @@ class Parameters(object):
         """
         if key in self._dict:
             value = self._dict[key]
-        else:
+        elif default is not None:
             value = default
-        self._logger.info("Parameters retrieved: {}, {}.".format(key, value))
+        else:
+            raise ValueError('Parameter %s doesn\'t exist.' % key)
+        return value
 
+    def save(self, path: str):
+        """
+        Save the object to local file system
 
-# Construct a set of default values
-default_parameters = Parameters()
-default_parameters.add("learning_rate", 1e-4)
+        :param path: string, path to the file
+        :return:
+        """
+        file = open(path, 'wb')
+        dump(self._dict, file)
+        file.close()
+
+    def load(self, path: str):
+        """
+        Load the object from local file system
+
+        :param path: string, path to the file
+        :return:
+        """
+        file = open(path, 'rb')
+        self._dict = load(file)
+        file.close()
