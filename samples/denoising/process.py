@@ -11,7 +11,8 @@ from nnimgproc.util.image import read, write
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', type=str, help='Path to the image.')
+    parser.add_argument('--input', type=str, required=True,
+                        help='Path to the image.')
     parser.add_argument('--output_folder', type=str, default='results',
                         help='Path to the output file')
     parser.add_argument('--output_image', type=str, default='noisy.jpg',

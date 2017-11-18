@@ -9,13 +9,13 @@ The backend should exposes:
 import os
 import time
 
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 
 from nnimgproc.model import BaseModel
 from nnimgproc.trainer import BaseTrainer
 
 # Name of the backend depends on the file name
-BACKEND = os.path.basename(__file__)
+BACKEND = str(os.path.basename(__file__).split('.')[0])
 # Name of the saved model file
 MODEL_FILENAME = 'model.h5'
 
@@ -46,8 +46,6 @@ class Trainer(BaseTrainer):
         self._epochs = self._params.get('epochs')
         self._train_batches = self._params.get('training_batches')
         self._val_batches = self._params.get('validation_batches')
-        self._workers = self._params.get('workers')
-        self._input_shape = self._params.get('input_shape')
 
         self._logger.info('Trainer (%s) created.' % self._model.backend)
 
@@ -59,31 +57,42 @@ class Trainer(BaseTrainer):
         """
         tensorboard = TensorBoard(log_dir=self._output_dir,
                                   batch_size=self._minibatch)
+        checkpointer = ModelCheckpoint(filepath=os.path.join(self._output_dir,
+                                                             MODEL_FILENAME))
 
+        # This generator seems to be thread unsafe
         def minibatch_generator(is_validation):
             while True:
                 # Get some images from dataset
                 images = self._dataset.get_minibatch(self._raw_minibatch,
                                                      is_validation)
-                # Do target processing on those images
-                x, y, meta = self._target_processor(images)
+                # Do target processing on all images
+                xs = []
+                ys = []
+                metas = []
+                for i in range(self._raw_minibatch):
+                    x, y, meta = self._target_processor(images[i])
+                    xs.append(x)
+                    ys.append(y)
+                    metas.append(meta)
+
                 # Convert pairs of (x, y) to some training points (usually
-                # sub-sampling/patch)
-                batch_x, batch_y = self._batch_processor(x, y, meta)
+                # sub-sampling/patch).
+                batch_x, batch_y = self._batch_processor(xs, ys, metas)
                 yield batch_x, batch_y
 
         # Start training and timer
         start = time.time()
         self._logger.info("Start training the keras model.")
-        self._model.model.fit_generator(self, minibatch_generator(False),
-                                        self._train_batches,
+        self._model.model.fit_generator(minibatch_generator(False),
+                                        steps_per_epoch=self._train_batches,
                                         epochs=self._epochs,
                                         validation_data=minibatch_generator(
-                                            is_validation=False
+                                            is_validation=True
                                         ),
                                         validation_steps=self._val_batches,
-                                        workers=self._workers,
-                                        callbacks=[tensorboard])
+                                        workers=1,
+                                        callbacks=[tensorboard, checkpointer])
         end = time.time()
         elapsed = end - start
         self._logger.info("End of training after %.3f seconds." % elapsed)

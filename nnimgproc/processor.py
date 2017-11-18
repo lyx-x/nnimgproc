@@ -15,12 +15,11 @@ class TargetProcessor(object):
     def __init__(self):
         pass
 
-    def __call__(self, images: np.ndarray) \
+    def __call__(self, img: np.ndarray) \
             -> Tuple[np.ndarray, np.ndarray, Optional[Parameters]]:
         """
 
-        :param images: ndarray of shape (size, w, h, 1) for grey image or
-                       (size, w, h, 3)
+        :param img: ndarray of shape (w, h, 1) for grey image or (w, h, 3)
         :return: tuple of (input, output, meta) / (ndarray, ndarray, Parameters)
         """
         raise NotImplementedError
@@ -41,8 +40,8 @@ class BatchProcessor(object):
                      Union[np.ndarray, Dict[str, np.ndarray]]]:
         """
 
-        :param x: a list of ndarrays, input output by TargetProcessor
-        :param y: a list of ndarrays, output output by TargetProcessor
+        :param x: ndarrays, input output by TargetProcessor
+        :param y: ndarrays, output output by TargetProcessor
         :param meta: a list of Parameters (from nnimgproc.util.parameters),
                      meta output by TargetProcessor
         :return: 2 ndarrays or 2 dictionary that can be read by a neural network

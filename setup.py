@@ -10,7 +10,7 @@ setup(
     license='MIT',
     author='Yuxiang Li',
     author_email='li.yuxiang.nj@gmail.com',
-    description='Framework for learning image processing task',
+    description='Framework for learning image processing tasks',
 
     install_requires=[
         'keras',

@@ -11,7 +11,8 @@ from nnimgproc.util.image import show
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, help='Path to the image.')
+    parser.add_argument('-i', '--input', type=str, required=True,
+                        help='Path to the image.')
     args = parser.parse_args()
 
     # Load the image
