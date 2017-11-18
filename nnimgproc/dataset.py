@@ -2,21 +2,25 @@ import logging
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+from typing import Tuple
 
 from nnimgproc.util.image import read
 
 
 class Dataset(object):
     """
-    Abstraction of dataset/data pool which is the only interface between model and local file system
+    Abstraction of dataset/data pool which is the only interface between model
+    and local file system
     """
-    def __init__(self, shape, max_size, as_grey, train_val_partition):
+    def __init__(self, shape: Tuple[int, int], as_grey: bool, max_size: int,
+                 train_val_partition: float):
         """
         Dataset constructor
 
         :param shape: tuple of 2 integers, same across all images
-        :param max_size: integer, maximum size of the dataset (due to memory limits)
         :param as_grey: bool, whether or not images are in greyscale
+        :param max_size: integer, maximum size of the dataset (due to memory
+                         limits)
         :param train_val_partition: float, ratio of training data in the dataset
         """
         self._logger = logging.getLogger(__name__)
@@ -24,11 +28,12 @@ class Dataset(object):
         self._max_size = max_size
         self._training_size = int(self._max_size * train_val_partition)
         self._as_grey = as_grey
-        self._images = np.ndarray((self._max_size, self._shape[0], self._shape[1], 1 if self._as_grey else 3),
+        self._images = np.ndarray((self._max_size, self._shape[0],
+                                   self._shape[1], 1 if self._as_grey else 3),
                                   dtype=np.float32)
         self._size = 0
 
-    def add(self, image):
+    def add(self, image: np.ndarray) -> bool:
         """
         Add an image to the dataset
 
@@ -42,7 +47,7 @@ class Dataset(object):
         else:
             return False
 
-    def get_all(self, is_validation=True):
+    def get_all(self, is_validation: bool=True) -> np.ndarray:
         """
         Get all images from the dataset
         :param is_validation: bool, whether or not we are in the validation mode
@@ -53,9 +58,10 @@ class Dataset(object):
         else:
             return self._images[np.arange(0, self._training_size)]
 
-    def get(self, is_validation=True):
+    def get(self, is_validation: bool=True) -> np.ndarray:
         """
-        Retrieve a random image from the dataset
+        Retrieve one random (or not depending on the number of images) image
+        from the dataset
 
         :param is_validation: bool, whether or not we are in the validation mode
         :return: ndarray of shape (w, h, 1) or (w, h, 3)
@@ -66,7 +72,7 @@ class Dataset(object):
             index = np.random.randint(0, self._training_size)
         return self._images[index]
 
-    def get_minibatch(self, size, is_validation=True):
+    def get_minibatch(self, size: int, is_validation: bool=True) -> np.ndarray:
         """
         Retrieve randomly a set of images
 
@@ -85,16 +91,22 @@ class ImageFolder(Dataset):
     """
     A folder full of images
     """
-    def __init__(self, folder, shape=(128, 128), max_size=2000, as_grey=True, train_val_partition=0.7):
+    def __init__(self, folder: str, shape: Tuple[int, int]=(128, 128),
+                 as_grey: bool=True, max_size: int=2000,
+                 train_val_partition: float=0.7):
         """
-        ImageFolder dataset constructor: retrieve all images directly under the root folder
+        ImageFolder dataset constructor: retrieve all images directly under the
+        root folder
 
         :param folder: string, path to the root folder
         :param shape: tuple of 2 integers, same across all images
-        :param max_size: integer, maximum size of the dataset (due to memory limits)
         :param as_grey: bool, whether or not images are in greyscale
+        :param max_size: integer, maximum size of the dataset (due to memory
+                         limits)
+        :param train_val_partition: float, ratio of training data in the dataset
         """
-        super(ImageFolder, self).__init__(shape, max_size, as_grey, train_val_partition)
+        super(ImageFolder, self).__init__(shape, as_grey, max_size,
+                                          train_val_partition)
         self._folder = folder
         # Read all image files under the folder until the dataset is full
         for filename in listdir(folder):
@@ -102,7 +114,8 @@ class ImageFolder(Dataset):
             if isfile(path):
                 ok = self.add(read(path, self._shape, self._as_grey))
                 if not ok:
-                    self._logger.info("Maximum dataset size reached: %d" % self._size)
+                    self._logger.info("Maximum dataset size reached: %d"
+                                      % self._size)
                     break
 
 
@@ -110,7 +123,8 @@ class ImageSingleton(Dataset):
     """
     Dataset with one single image, used when we need to test on one single image
     """
-    def __init__(self, path, shape=(128, 128), as_grey=True):
+    def __init__(self, path: str, shape: Tuple[int, int]=(128, 128),
+                 as_grey: bool=True):
         """
         ImageSingleton dataset constructor: read only one image
 
@@ -118,10 +132,10 @@ class ImageSingleton(Dataset):
         :param shape: tuple of 2 integers, same across all images
         :param as_grey: bool, whether or not images are in greyscale
         """
-        super(ImageSingleton, self).__init__(shape, 1, as_grey, 0)
+        super(ImageSingleton, self).__init__(shape, as_grey, 1, 0)
         if isfile(path):
             ok = self.add(read(path, self._shape, self._as_grey))
             if not ok:
-                self._logger.error("Not enough space for just one image, impossible.")
+                self._logger.error("Not enough space for even one image!")
         else:
             self._logger.error("Not a path: %s" % path)

@@ -1,12 +1,15 @@
+import numpy as np
+from typing import Tuple
+
 from skimage.color import gray2rgb
 from skimage.io import imread, imsave
 from skimage.transform import resize
 from skimage.viewer import ImageViewer
 
 
-def read(path, shape, as_grey=True):
+def read(path: str, shape: Tuple[int, int], as_grey: bool=True) -> np.ndarray:
     """
-    Read an image
+    Read an image. The dynamic is 1, values are floating numbers from 0 to 1.
 
     :param path: string
     :param shape: tuple of 2 integers
@@ -24,11 +27,12 @@ def read(path, shape, as_grey=True):
             # No need for the alpha channel
             image = resize(image[:, :, :3], (shape[0], shape[1], 3))
 
-    assert image.ndim == 3, "The image should be read in shape (width, height, channels)."
+    assert image.ndim == 3, "The image should be read in shape " \
+                            "(width, height, channels)."
     return image
 
 
-def write(image, path):
+def write(image: np.ndarray, path: str):
     """
     Save the image to local disk
 
@@ -37,12 +41,12 @@ def write(image, path):
     :return:
     """
     if image.ndim > 2 and image.shape[2] == 1:
-        imsave(image[:, :, 0], path)
+        imsave(path, image[:, :, 0])
     else:
-        imsave(image, path)
+        imsave(path, image)
 
 
-def show(image):
+def show(image: np.ndarray):
     """
     Display the image
 
@@ -52,5 +56,5 @@ def show(image):
     if image.ndim > 2 and image.shape[2] == 1:
         viewer = ImageViewer(image[:, :, 0])
     else:
-        viewer = ImageViewer(image)
+        viewer = ImageViewer(image.data)
     viewer.show()

@@ -1,7 +1,7 @@
 """
 Keras backend 
 
-The backend exposes:
+The backend should exposes:
     - Class: Trainer
     - Class: Model
     - Function: load
@@ -21,33 +21,33 @@ MODEL_FILENAME = 'model.h5'
 
 
 class Trainer(BaseTrainer):
-    def __init__(self, model, training_parameters, dataset, target_processing, batch_processing, post_processing):
+    def __init__(self, model, params, dataset, target_processor,
+                 batch_processor, model_processor):
         """
         Initialize a neural network trainer/optimizer
 
         :param model: Model (from nnimgproc.backend.keras)
-        :param training_parameters: Parameters (from nnimgproc.util.parameters), training parameter set
-        :param dataset: Dataset (from nnimgproc.dataset), image minibatch provider
-        :param target_processing: lambda function img -> (input, output, meta), image processing pipeline to imitate.
-                                 The meta contains some parameters used in the processing pipeline which
-                                 can then be used to help learning or evaluating the result
-        :param batch_processing: lambda function (x, y, meta, shape, batch_size, is_random) -> (x, y, meta),
-                                 convert images to patches. If is_random is False, the processor will act in a
-                                 deterministic way which (together with meta) will be used to rebuild the image
-        :param post_processing: (batch_x, meta) -> img, rebuild one image from batches which may be patches of it
+        :param params: Parameters (from nnimgproc.util.parameters),
+                       training parameter set such as learning rate
+        :param dataset: Dataset (from nnimgproc.dataset), image provider
+        :param target_processor: TargetProcessor (from nnimgproc.processor)
+        :param batch_processor: BatchProcessor (from nnimgproc.processor)
+        :param model_processor: ModelProcessor (from nnimgproc.processor)
         """
-        super(Trainer, self).__init__(model, training_parameters, dataset, target_processing, batch_processing,
-                                      post_processing)
-        assert model.backend == BACKEND, 'The model backend is not keras: %s' % model.backend
+        super(Trainer, self).__init__(model, params, dataset,
+                                      target_processor, batch_processor,
+                                      model_processor)
+        assert model.backend == BACKEND, 'The model backend is not keras: %s' \
+                                         % model.backend
 
         # Read out data-related training parameters
-        self._image_batch_size = self._training_parameters.get('image_minibatch', 32)
-        self._minibatch_size = self._training_parameters.get('training_minibatch', 32)
-        self._epochs = self._training_parameters.get('epochs', 20)
-        self._training_batches = self._training_parameters.get('training_batches', 50)
-        self._validation_batches = self._training_parameters.get('validation_batches', 5)
-        self._workers = self._training_parameters.get('workers', 1)
-        self._input_shape = self._training_parameters.get('input_shape', (17, 17))
+        self._raw_minibatch = self._params.get('image_minibatch')
+        self._minibatch = self._params.get('training_minibatch')
+        self._epochs = self._params.get('epochs')
+        self._train_batches = self._params.get('training_batches')
+        self._val_batches = self._params.get('validation_batches')
+        self._workers = self._params.get('workers')
+        self._input_shape = self._params.get('input_shape')
 
         self._logger.info('Trainer (%s) created.' % self._model.backend)
 
@@ -57,53 +57,36 @@ class Trainer(BaseTrainer):
         
         :return: 
         """
-        tensorboard = TensorBoard(log_dir=self._output_dir, batch_size=self._minibatch_size)
+        tensorboard = TensorBoard(log_dir=self._output_dir,
+                                  batch_size=self._minibatch)
 
         def minibatch_generator(is_validation):
             while True:
                 # Get some images from dataset
-                images = self._dataset.get_minibatch(self._image_batch_size, is_validation)
+                images = self._dataset.get_minibatch(self._raw_minibatch,
+                                                     is_validation)
                 # Do target processing on those images
-                x, y, meta = self._target_processing(images)
-                # Convert each pair of (x, y) to some training points (usually sub-sampling/patch)
-                batch_x, batch_y, meta = self._batch_processing(x, y, meta,
-                                                                self._input_shape, self._minibatch_size,
-                                                                is_random=True)
+                x, y, meta = self._target_processor(images)
+                # Convert pairs of (x, y) to some training points (usually
+                # sub-sampling/patch)
+                batch_x, batch_y = self._batch_processor(x, y, meta)
                 yield batch_x, batch_y
 
         # Start training and timer
         start = time.time()
         self._logger.info("Start training the keras model.")
-        self._model.model.fit_generator(self, minibatch_generator(False), self._training_batches, epochs=self._epochs,
-                                        validation_data=minibatch_generator(False),
-                                        validation_steps=self._validation_batches,
-                                        workers=self._workers, callbacks=[tensorboard])
+        self._model.model.fit_generator(self, minibatch_generator(False),
+                                        self._train_batches,
+                                        epochs=self._epochs,
+                                        validation_data=minibatch_generator(
+                                            is_validation=False
+                                        ),
+                                        validation_steps=self._val_batches,
+                                        workers=self._workers,
+                                        callbacks=[tensorboard])
         end = time.time()
         elapsed = end - start
         self._logger.info("End of training after %.3f seconds." % elapsed)
-
-    def eval(self, image):
-        """
-        Process all images in the dataset
-
-        :param: image: ndarray of shape (w, h, 1) or (w, h, 3), image to be processed
-        :return: ndarray, processed image
-        """
-        # Timed operation
-        start = time.time()
-
-        self._logger.info("Start individual processing.")
-        images = image.reshape(1, )
-        x, y, meta = self._target_processing(images)
-        # batch_x can be larger than the minibatch_size when is_random is set to False
-        batch_x, batch_y, meta = self._batch_processing(x, y, meta, self._input_shape, -1, is_random=False)
-        post_x = self._model.model.predict(batch_x)
-        output = self._post_processing(post_x, meta)
-
-        end = time.time()
-        elapsed = end - start
-        self._logger.info("Processing completed in %.3f seconds." % elapsed)
-        return output
 
 
 class Model(BaseModel):
@@ -111,12 +94,13 @@ class Model(BaseModel):
         """
         Keras model wrapper
 
-        :param model: Model (from keras.models), already compiled, can take multiple inputs/outputs
+        :param model: Model (from keras.models), already compiled, can take
+                      multiple inputs/outputs
         """
         super(Model, self).__init__(model, backend=BACKEND)
         self._logger.info('Model (%s) created.' % self._backend)
 
-    def save(self, path):
+    def save(self, path: str):
         """
         Save the model to the file system
 
@@ -127,7 +111,7 @@ class Model(BaseModel):
         self._logger.info('Model saved under: %s' % path)
 
 
-def load(path):
+def load(path: str):
     """
     Load a pre-trained model from the file system
 

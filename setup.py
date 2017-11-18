@@ -14,6 +14,7 @@ setup(
 
     install_requires=[
         'keras',
+        'numpy',
         'scikit-image',
     ],
 )
