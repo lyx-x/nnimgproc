@@ -92,22 +92,22 @@ def main():
                         help='Prefix for output files')
     parser.add_argument('--image_dir', type=str, required=True,
                         help='Clean image folder')
-    parser.add_argument('--max_image_count', type=int, default=10,
+    parser.add_argument('--max_image_count', type=int, default=1000,
                         help='Maximum number of images in the RAM')
     parser.add_argument('--noise', nargs='*', default=['gaussian', 0.1],
                         help='Noise type')
-    parser.add_argument('--input_patch', type=int, default=17,
+    parser.add_argument('--input_patch', type=int, default=9,
                         help='Patch size for the input')
-    parser.add_argument('--output_patch', type=int, default=17,
+    parser.add_argument('--output_patch', type=int, default=9,
                         help='Patch size for the output')
     parser.add_argument('--learning_rate', type=float, default=0.0001,
                         help='Learning rate')
-    parser.add_argument('--minibatch', type=int, default=32, help='Batch size')
+    parser.add_argument('--minibatch', type=int, default=64, help='Batch size')
     parser.add_argument('--epochs', type=int, default=20,
                         help='Number of epochs')
-    parser.add_argument('--training', type=int, default=32000,
+    parser.add_argument('--training', type=int, default=64000,
                         help='Number of training samples per epoch')
-    parser.add_argument('--validation', type=int, default=320,
+    parser.add_argument('--validation', type=int, default=1280,
                         help='Number of validation samples per epoch')
     parser.add_argument('--workers', type=int, default=1,
                         help='Number of threads for image generation')
@@ -120,7 +120,7 @@ def main():
     params.set('input_shape', (args.input_patch, args.input_patch, 1))
     params.set('output_shape', (args.output_patch, args.output_patch, 1))
     params.set('learning_rate', args.learning_rate)
-    params.set('image_minibatch', args.minibatch)
+    params.set('image_minibatch', args.minibatch // 8)
     params.set('training_minibatch', args.minibatch)
     params.set('epochs', args.epochs)
     params.set('training_batches', args.training // args.minibatch)
@@ -151,7 +151,7 @@ def main():
         # This creates a model that includes
         # the Input layer and three Dense layers
         model = Model(inputs=[input], outputs=[output])
-        model.compile(optimizer='adam', loss='mse', metrics=['mse'])
+        model.compile(optimizer='adam', loss='mse')
 
         model = build_model(model=model, backend='keras')
 

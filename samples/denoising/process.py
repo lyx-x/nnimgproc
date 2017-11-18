@@ -3,6 +3,7 @@
 # Noise demonstration: test noise generator
 
 import argparse
+import logging
 import os
 
 from nnimgproc.target_processor.denoising import DenoisingTargetProcessor
@@ -33,6 +34,7 @@ def main():
 
     write(image=x, path=os.path.join(args.output_folder, args.output_image))
     meta.save(path=os.path.join(args.output_folder, args.output_meta))
+    logging.info("Finish processing %s" % args.input)
 
 
 if __name__ == '__main__':

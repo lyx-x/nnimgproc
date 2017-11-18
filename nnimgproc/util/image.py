@@ -7,7 +7,8 @@ from skimage.transform import resize
 from skimage.viewer import ImageViewer
 
 
-def read(path: str, shape: Tuple[int, int], as_grey: bool=True) -> np.ndarray:
+def read(path: str, shape: Tuple[int, int]=(128, 128), as_grey: bool=True) \
+        -> np.ndarray:
     """
     Read an image. The dynamic is 1, values are floating numbers from 0 to 1.
 
