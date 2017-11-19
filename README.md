@@ -109,6 +109,16 @@ docker image build -f docker/Dockerfile.gpu -t nnimgproc:gpu .
 nvidia-docker run -it --rm nnimgproc:gpu bash
 ```
 
+Installing the project with `pip` is also possible, but there could be
+version mismatch, for example, tensorflow is configured with a specific
+version of CUDA and cudnn which may not correspond to the one provided by
+your Linux distribution.
+
+```
+pip3 install --user -e .  # cpu-only
+pip3 install --user -e '.[all]'  # gpu
+```
+
 ### Image denoising with multilayer perceptron
 
 Under the `samples/denoising` folder, we provide some scripts for training 
@@ -131,7 +141,7 @@ bash samples/denoising/run.sh
 By default, the output are located at `./results/denoising_mlp_keras`. A 
 tensorboard service is started in the background at the beginning
 to visualize the training process. You can access the tensorboard at
-[localhost:6006](localhost:6006).
+[localhost:6006](http://localhost:6006).
 
 If you use docker and want to save the result into local file system, you
 will need to mount another folder when running the container.
