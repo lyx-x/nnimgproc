@@ -1,3 +1,9 @@
+"""
+What is denoising?
+
+
+"""
+
 import numpy as np
 from typing import Tuple, Optional
 

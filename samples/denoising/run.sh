@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
+data=/root/data
 out=./results/denoising_mlp_keras
 mkdir -p ${out}
+
+# Visualization
+tensorboard --logdir ${out} &
 
 # Resume training from a checkpoint
 python3 -W ignore samples/denoising/denoising_mlp_keras.py \
     --output_dir ${out} \
-    --image_dir ${DATA} \
+    --image_dir ${data} \
     --max_image_count 1000 \
     --noise gaussian 0.1 \
     --input_patch 9 \
@@ -43,9 +47,6 @@ python3 -W ignore samples/denoising/denoising_mlp_keras_eval.py \
 
 # Evaluate the performance
 echo "After denoising..."
-python3 samples/util/psnr.py --noisy results/denoising_mlp_keras/noisy.jpg \
+python3 -W ignore samples/util/psnr.py --noisy results/denoising_mlp_keras/noisy.jpg \
     --clean data/lena.png \
     --noisy ${out}/result.png
-
-# Visualizaation
-tensorboard --logdir ${out}

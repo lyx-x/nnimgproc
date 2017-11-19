@@ -5,7 +5,7 @@ task with neural network. The usage of the module is very simple:
 
 1. Specify an image processing pipeline using traditional Python code
 2. Declare a neural network model
-3. Train the network with pre/post-processing methods
+3. Train the network with batch/model-processing methods
 4. Save and test the model
 
 Please read the following sections to understand how each component is
@@ -89,33 +89,25 @@ we do give some examples under the samples folder.
 
 ## Examples
 
-To install the project, run:
+Before running the examples, you will need to install the project and its
+dependencies. In addition to Arch Linux under which the project is developed,
+the project is also tested against the environment specified in the 
+Dockerfiles under `docker`. 
+
+To build a docker image and run a container in interactive mode, please 
+execute:
 
 ```
-git clone https://github.com/lyx-x/nnimgproc.git
-cd nnimgproc
-pip3 install --user -e '.[all]'
-```
-In addition to Arch Linux under which the project is developed, the project
-is also tested against the environment specified in the Dockerfiles under
-`docker`. To build a docker image and run a container in the interactive mode,
-please execute:
-
-```
-# build an cpu-lonimage
-
-# use cpu-only
-docker
-# use gpu
-nvidia-docker
+docker image build -f docker/Dockerfile.cpu -t nnimgproc:cpu .
+docker run -it --rm nnimgproc:cpu bash
 ```
 
-In order to use GPUs, run:
+In order to use GPUs, please run:
 
 ```
-nvidia-docker run -it --rm nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04 bash
+docker image build -f docker/Dockerfile.gpu -t nnimgproc:gpu .
+nvidia-docker run -it --rm nnimgproc:gpu bash
 ```
-
 
 ### Image denoising with multilayer perceptron
 
@@ -127,13 +119,14 @@ To train and test a smaller version of it, please use the supplemented
 bash script.
 
 ```
-export DATA=#{A folder containing enough images to be loaded}
+# if you have a folder containing full of images
+export DATA=#{PATH_TO_YOUR_FOLDER}
+# otherwise use images provided with the project
+export DATA=./data
+nvidia-docker -v $DATA:/root/data run -p 6006:6006 -it --rm nnimgproc bash
 bash samples/denoising/run.sh
 ```
 
-
-
-
-
-
-
+By default, the output are located at `./results/denoising_mlp_keras`. A 
+tensorboard service is started in the background at the beginning
+to visualize the training process.
