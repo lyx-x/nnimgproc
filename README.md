@@ -89,8 +89,33 @@ we do give some examples under the samples folder.
 
 ## Examples
 
-We provide 4 standard test images under `data`. The following models can be
-tested against them.
+To install the project, run:
+
+```
+git clone https://github.com/lyx-x/nnimgproc.git
+cd nnimgproc
+pip3 install --user -e '.[all]'
+```
+In addition to Arch Linux under which the project is developed, the project
+is also tested against the environment specified in the Dockerfiles under
+`docker`. To build a docker image and run a container in the interactive mode,
+please execute:
+
+```
+# build an cpu-lonimage
+
+# use cpu-only
+docker
+# use gpu
+nvidia-docker
+```
+
+In order to use GPUs, run:
+
+```
+nvidia-docker run -it --rm nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04 bash
+```
+
 
 ### Image denoising with multilayer perceptron
 

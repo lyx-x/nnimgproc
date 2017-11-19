@@ -32,7 +32,7 @@ def load_model(path: str, backend: str) -> BaseModel:
     :return: Model (from nnimgproc.model)
     """
     lib = importlib.import_module('nnimgproc.backend.%s' % backend)
-    return lib.Model(lib.load(path))
+    return lib.load(path)
 
 
 def build_trainer(model: BaseModel,

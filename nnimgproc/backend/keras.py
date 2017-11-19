@@ -9,6 +9,7 @@ The backend should exposes:
 import os
 import time
 
+import keras
 from keras.callbacks import TensorBoard, ModelCheckpoint
 
 from nnimgproc.dataset import Dataset
@@ -21,6 +22,39 @@ from nnimgproc.util.parameters import Parameters
 BACKEND = str(os.path.basename(__file__).split('.')[0])
 # Name of the saved model file
 MODEL_FILENAME = 'model.h5'
+
+
+class Model(BaseModel):
+    def __init__(self, model: keras.Model):
+        """
+        Keras model wrapper
+
+        :param model: Model (from keras.models), already compiled, can take
+                      multiple inputs/outputs
+        """
+        super(Model, self).__init__(model, backend=BACKEND)
+        self._logger.info('Model (%s) created.' % self._backend)
+
+    def save(self, path: str):
+        """
+        Save the model to the file system
+
+        :param path: string, root folder for the model file
+        :return:
+        """
+        self._model.save(os.path.join(path, MODEL_FILENAME))
+        self._logger.info('Model saved under: %s' % path)
+
+
+def load(path: str) -> Model:
+    """
+    Load a pre-trained model from the file system
+
+    :param path: string, path to the folder containing the model file
+    :return: Model
+    """
+    from keras.models import load_model
+    return Model(load_model(os.path.join(path, MODEL_FILENAME)))
 
 
 class Trainer(BaseTrainer):
@@ -62,7 +96,7 @@ class Trainer(BaseTrainer):
                                                              MODEL_FILENAME))
 
         # This generator seems to be thread unsafe
-        def minibatch_generator(is_validation):
+        def minibatch_generator(is_validation: bool):
             while True:
                 # Get some images from dataset
                 images = self._dataset.get_minibatch(self._raw_minibatch,
@@ -97,36 +131,3 @@ class Trainer(BaseTrainer):
         end = time.time()
         elapsed = end - start
         self._logger.info("End of training after %.3f seconds." % elapsed)
-
-
-class Model(BaseModel):
-    def __init__(self, model):
-        """
-        Keras model wrapper
-
-        :param model: Model (from keras.models), already compiled, can take
-                      multiple inputs/outputs
-        """
-        super(Model, self).__init__(model, backend=BACKEND)
-        self._logger.info('Model (%s) created.' % self._backend)
-
-    def save(self, path: str):
-        """
-        Save the model to the file system
-
-        :param path: string, root folder for the model file
-        :return:
-        """
-        self._model.save(os.path.join(path, MODEL_FILENAME))
-        self._logger.info('Model saved under: %s' % path)
-
-
-def load(path: str):
-    """
-    Load a pre-trained model from the file system
-
-    :param path: string, path to the folder containing the model file
-    :return:
-    """
-    from keras.models import load_model
-    return load_model(os.path.join(path, MODEL_FILENAME))

@@ -10,6 +10,7 @@ from typing import Dict, List, Tuple, Union
 
 from keras.layers import Input, Dense, Reshape, Flatten
 from keras.models import Model
+from keras.optimizers import Adam
 
 from nnimgproc import build_model, build_trainer, load_model
 from nnimgproc.dataset import ImageFolder
@@ -61,21 +62,21 @@ class DenoisingBatchProcessor(BatchProcessor):
         def fill(i):
             x_batch[i] = xs[indices[i]][
                          corner_positions[0][i] + x_offset[0]:
-                         corner_positions[0][i] + x_offset[0] +
-                         self._x_shape[0],
+                         corner_positions[0][i] + x_offset[0]
+                         + self._x_shape[0],
                          corner_positions[1][i] + x_offset[1]:
-                         corner_positions[1][i] + x_offset[1] +
-                         self._x_shape[0],
+                         corner_positions[1][i] + x_offset[1]
+                         + self._x_shape[0],
                          :
                          ]
 
             y_batch[i] = ys[indices[i]][
                          corner_positions[0][i] + y_offset[0]:
-                         corner_positions[0][i] + y_offset[0] +
-                         self._y_shape[0],
+                         corner_positions[0][i] + y_offset[0]
+                         + self._y_shape[0],
                          corner_positions[1][i] + y_offset[1]:
-                         corner_positions[1][i] + y_offset[1] +
-                         self._y_shape[0],
+                         corner_positions[1][i] + y_offset[1]
+                         + self._y_shape[0],
                          :
                          ]
 
@@ -92,18 +93,20 @@ def main():
                         help='Prefix for output files')
     parser.add_argument('--image_dir', type=str, required=True,
                         help='Clean image folder')
-    parser.add_argument('--max_image_count', type=int, default=1000,
+    parser.add_argument('--max_image_count', type=int, default=10000,
                         help='Maximum number of images in the RAM')
     parser.add_argument('--noise', nargs='*', default=['gaussian', 0.1],
                         help='Noise type')
-    parser.add_argument('--input_patch', type=int, default=9,
+    parser.add_argument('--input_patch', type=int, default=17,
                         help='Patch size for the input')
-    parser.add_argument('--output_patch', type=int, default=9,
+    parser.add_argument('--output_patch', type=int, default=17,
                         help='Patch size for the output')
+    parser.add_argument('--layers', nargs='*', default=[2047, 2047, 2047, 2047],
+                        help='Size of hidden layers')
     parser.add_argument('--learning_rate', type=float, default=0.0001,
                         help='Learning rate')
     parser.add_argument('--minibatch', type=int, default=64, help='Batch size')
-    parser.add_argument('--epochs', type=int, default=20,
+    parser.add_argument('--epochs', type=int, default=50,
                         help='Number of epochs')
     parser.add_argument('--training', type=int, default=64000,
                         help='Number of training samples per epoch')
@@ -143,15 +146,16 @@ def main():
         # Declare the model
         input = Input(shape=params.get('input_shape'), name='x')
         x = Flatten()(input)
-        x = Dense(128, activation='relu')(x)
-        x = Dense(128, activation='relu')(x)
+        for h in args.layers:
+            x = Dense(int(h), activation='relu')(x)
         x = Dense(args.output_patch * args.output_patch)(x)
         output = Reshape(target_shape=params.get('output_shape'), name='y')(x)
 
         # This creates a model that includes
         # the Input layer and three Dense layers
         model = Model(inputs=[input], outputs=[output])
-        model.compile(optimizer='adam', loss='mse')
+        model.compile(optimizer=Adam(lr=params.get('learning_rate')),
+                      loss='mse')
 
         model = build_model(model=model, backend='keras')
 

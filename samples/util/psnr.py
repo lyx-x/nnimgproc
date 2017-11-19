@@ -4,37 +4,9 @@
 
 import argparse
 import logging
-import math
-import numpy as np
 
 from nnimgproc.util.image import read
-
-
-def mse(noisy: np.ndarray, clean: np.ndarray) -> float:
-    """
-    Calculate the MSE value between noise and clean image.
-
-    :param noisy: ndarray, noisy image
-    :param clean: ndarray, clean image
-    :return: float, mean-square-error value
-    """
-    assert noisy.shape == clean.shape, "Shape mismatch when computing MSE."
-    res = np.square(noisy.astype(float) - clean.astype(float)).mean()
-    return res
-
-
-def psnr(noisy: np.ndarray, clean: np.ndarray, dynamic: float=1.0) -> float:
-    """
-    Calculate the PSNR value between noise and clean image.
-
-    :param noisy: ndarray, noisy image
-    :param clean: ndarray, clean image
-    :param dynamic: float, the scale (max value) of the image
-    :return: float, PSNR value
-    """
-    assert noisy.shape == clean.shape, "Shape mismatch when computing PSNR."
-    peak = dynamic * dynamic
-    return 10 * math.log10(peak / mse(noisy, clean))
+from nnimgproc.util.math import mse, psnr
 
 
 def main():
