@@ -29,6 +29,7 @@ setup(
         'numpy',
         'scikit-image',
         'scipy',
-        'tensorflow'
+        'tensorflow',
+        'tensorflow-tensorboard'
     ],
 )
