@@ -61,13 +61,18 @@ is needed here as we are not going to train the model). After processing
 these data points with `Model`, a post-processor is used to reassemble the
 image in a predefined way.
 
-### Trainer
+### Trainer / Tester
 
 The `Trainer` interface unifies the training and evaluation of the `Model`.
 It takes as input a `Dataset`, a `Model`, some `Processors` and a 
 `Parameters` that specify all parameters relevant to the network training such
 as the learning rate and number of epochs. The object can be used in 2 phases:
 training and testing phase.
+
+The `Tester` module is not a interface, but a class. It builds upon a `Model`
+and a `ModelProcessor` which control the whole computation. Therefore, `Tester`
+is merely a wrapper around those 2 objects, but it does offer a unified
+method for interacting with images or `Dataset`.
 
 ## Backends
 
@@ -84,6 +89,26 @@ we do give some examples under the samples folder.
 
 ## Examples
 
+We provide 4 standard test images under `data`. The following models can be
+tested against them.
+
 ### Image denoising with multilayer perceptron
+
+Under the `samples/denoising` folder, we provide some scripts for training 
+simple neural network-based image denoiser. The default parameters are taken
+from Burger et al. 
+[[1]](http://people.tuebingen.mpg.de/burger/neural_denoising/cvpr2012.html).
+To train and test a smaller version of it, please use the supplemented
+bash script.
+
+```
+export DATA=#{A folder containing enough images to be loaded}
+bash samples/denoising/run.sh
+```
+
+
+
+
+
 
 

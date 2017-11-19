@@ -28,16 +28,16 @@ class DenoisingBatchProcessor(BatchProcessor):
         self._batch_size = batch_size
         self._workers = workers
 
-    def __call__(self, x: List[np.ndarray], y: List[np.ndarray],
-                 meta: List[Parameters]) \
+    def __call__(self, xs: List[np.ndarray], ys: List[np.ndarray],
+                 metas: List[Parameters]) \
             -> Tuple[Union[np.ndarray, Dict[str, np.ndarray]],
                      Union[np.ndarray, Dict[str, np.ndarray]]]:
         # Assume all elements in x and y have the same shape
         # Image shape
-        shape = x[0].shape
+        shape = xs[0].shape
 
         # Generate a list of indexes: select images for each batch position
-        indices = np.random.randint(0, len(x), self._batch_size)
+        indices = np.random.randint(0, len(xs), self._batch_size)
 
         # Generate for each index a patch position / a tuple of integers
         # Here the range(2) represents (horizontal, vertical) coordinates
@@ -59,7 +59,7 @@ class DenoisingBatchProcessor(BatchProcessor):
         y_batch = np.zeros((self._batch_size,) + self._y_shape)
 
         def fill(i):
-            x_batch[i] = x[indices[i]][
+            x_batch[i] = xs[indices[i]][
                          corner_positions[0][i] + x_offset[0]:
                          corner_positions[0][i] + x_offset[0] +
                          self._x_shape[0],
@@ -69,7 +69,7 @@ class DenoisingBatchProcessor(BatchProcessor):
                          :
                          ]
 
-            y_batch[i] = y[indices[i]][
+            y_batch[i] = ys[indices[i]][
                          corner_positions[0][i] + y_offset[0]:
                          corner_positions[0][i] + y_offset[0] +
                          self._y_shape[0],
@@ -172,7 +172,7 @@ def main():
 
     # Create a trainer
     trainer = build_trainer(model, params, dataset, target_processor,
-                            batch_processor, None)
+                            batch_processor)
     trainer.train()
     trainer.save(path=args.output_dir)
 

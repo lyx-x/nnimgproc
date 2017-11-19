@@ -11,8 +11,11 @@ import time
 
 from keras.callbacks import TensorBoard, ModelCheckpoint
 
+from nnimgproc.dataset import Dataset
 from nnimgproc.model import BaseModel
+from nnimgproc.processor import TargetProcessor, BatchProcessor
 from nnimgproc.trainer import BaseTrainer
+from nnimgproc.util.parameters import Parameters
 
 # Name of the backend depends on the file name
 BACKEND = str(os.path.basename(__file__).split('.')[0])
@@ -21,8 +24,9 @@ MODEL_FILENAME = 'model.h5'
 
 
 class Trainer(BaseTrainer):
-    def __init__(self, model, params, dataset, target_processor,
-                 batch_processor, model_processor):
+    def __init__(self, model: Model, params: Parameters, dataset: Dataset,
+                 target_processor: TargetProcessor,
+                 batch_processor: BatchProcessor):
         """
         Initialize a neural network trainer/optimizer
 
@@ -31,12 +35,9 @@ class Trainer(BaseTrainer):
                        training parameter set such as learning rate
         :param dataset: Dataset (from nnimgproc.dataset), image provider
         :param target_processor: TargetProcessor (from nnimgproc.processor)
-        :param batch_processor: BatchProcessor (from nnimgproc.processor)
-        :param model_processor: ModelProcessor (from nnimgproc.processor)
         """
         super(Trainer, self).__init__(model, params, dataset,
-                                      target_processor, batch_processor,
-                                      model_processor)
+                                      target_processor, batch_processor)
         assert model.backend == BACKEND, 'The model backend is not keras: %s' \
                                          % model.backend
 

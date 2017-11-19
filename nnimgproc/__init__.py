@@ -1,10 +1,11 @@
 import importlib
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from nnimgproc.dataset import Dataset
 from nnimgproc.model import BaseModel
 from nnimgproc.processor import TargetProcessor, BatchProcessor, ModelProcessor
+from nnimgproc.tester import Tester
 from nnimgproc.trainer import BaseTrainer
 from nnimgproc.util.parameters import Parameters
 
@@ -35,11 +36,10 @@ def load_model(path: str, backend: str) -> BaseModel:
 
 
 def build_trainer(model: BaseModel,
-                  params: Optional[Parameters],
+                  params: Parameters,
                   dataset: Dataset,
-                  target_processor: Optional[TargetProcessor],
-                  batch_processor: Optional[BatchProcessor],
-                  model_processor: Optional[ModelProcessor]) \
+                  target_processor: TargetProcessor,
+                  batch_processor: BatchProcessor) \
         -> BaseTrainer:
     """
     Build a neural network trainer/optimizer based on different backend
@@ -50,9 +50,20 @@ def build_trainer(model: BaseModel,
     :param dataset: Dataset (from nnimgproc.dataset), image provider
     :param target_processor: TargetProcessor (from nnimgproc.processor)
     :param batch_processor: BatchProcessor (from nnimgproc.processor)
-    :param model_processor: ModelProcessor (from nnimgproc.processor)
     :return: Trainer (from nnimgproc.trainer)
     """
     lib = importlib.import_module('nnimgproc.backend.%s' % model.backend)
     return lib.Trainer(model, params, dataset,
-                       target_processor, batch_processor, model_processor)
+                       target_processor, batch_processor)
+
+
+def build_tester(model: BaseModel, model_processor: ModelProcessor) \
+        -> Tester:
+    """
+    Build a tester object
+
+    :param model: Model (inherited from nnimgproc.model.BaseModel)
+    :param model_processor: ModelProcessor (from nnimgproc.processor)
+    :return: Tester (from nnimgproc.tester)
+    """
+    return Tester(model, model_processor)

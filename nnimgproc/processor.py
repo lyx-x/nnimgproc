@@ -27,23 +27,23 @@ class TargetProcessor(object):
 
 class BatchProcessor(object):
     """
-    This class encapsulates a lambda function (x, y, meta) -> (batch_x,
+    This class encapsulates a lambda function (xs, ys, metas) -> (batch_x,
     batch_y) that converts a list of images to training batches. The batch_x
     and batch_y can be dictionary if needed.
     """
     def __init__(self):
         pass
 
-    def __call__(self, x: List[np.ndarray], y: List[np.ndarray],
-                 meta: List[Parameters]) \
+    def __call__(self, xs: List[np.ndarray], ys: List[np.ndarray],
+                 metas: List[Parameters]) \
             -> Tuple[Union[np.ndarray, Dict[str, np.ndarray]],
                      Union[np.ndarray, Dict[str, np.ndarray]]]:
         """
 
-        :param x: ndarrays, input output by TargetProcessor
-        :param y: ndarrays, output output by TargetProcessor
-        :param meta: a list of Parameters (from nnimgproc.util.parameters),
-                     meta output by TargetProcessor
+        :param xs: ndarrays, inputs output by TargetProcessor
+        :param ys: ndarrays, outputs output by TargetProcessor
+        :param metas: a list of Parameters (from nnimgproc.util.parameters),
+                      meta output by TargetProcessor
         :return: 2 ndarrays or 2 dictionary that can be read by a neural network
         """
         raise NotImplementedError
