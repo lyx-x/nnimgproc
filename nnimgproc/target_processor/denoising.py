@@ -1,6 +1,12 @@
 """
 What is denoising?
 
+Noise is modeled as samples from a certain distribution, it can be referred
+with the name of distribution it follows, for example, a Gaussian noise.
+
+Mode (noise_type and noise_params):
+- "gaussian", [standard deviation of the distribution]: Gaussian noise
+- "poisson", [peak value]: Poisson noise
 
 """
 

@@ -2,6 +2,7 @@ from distutils.core import setup
 
 extras = {
     'tensorflow-gpu': ['tensorflow-gpu'],
+    'cupy': ['cupy'],
 }
 
 # Meta dependency groups.
@@ -24,6 +25,7 @@ setup(
                 'networks',
     extras_require=extras,
     install_requires=[
+        'chainer',
         'h5py',
         'keras',
         'numpy',

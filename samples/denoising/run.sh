@@ -2,6 +2,7 @@
 
 data=/root/data
 out=./results/denoising_mlp_keras
+img=./data/lena.png
 mkdir -p ${out}
 
 # Visualization
@@ -25,7 +26,7 @@ python3 samples/denoising/denoising_mlp_keras.py \
 
 # Generate a noisy image
 python3 samples/denoising/process.py \
-    --input data/lena.png \
+    --input ${img} \
     --output_folder ${out} \
     --output_image noisy.png \
     --output_meta meta.pkl \
@@ -33,7 +34,7 @@ python3 samples/denoising/process.py \
 
 echo "Before denoising..."
 python3 samples/util/psnr.py --noisy results/denoising_mlp_keras/noisy.jpg \
-    --clean data/lena.png \
+    --clean ${img} \
     --noisy ${out}/noisy.png
 
 # Denoise
@@ -48,5 +49,5 @@ python3 samples/denoising/denoising_mlp_keras_eval.py \
 # Evaluate the performance
 echo "After denoising..."
 python3 samples/util/psnr.py --noisy results/denoising_mlp_keras/noisy.jpg \
-    --clean data/lena.png \
+    --clean ${img} \
     --noisy ${out}/result.png
