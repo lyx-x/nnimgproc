@@ -26,12 +26,13 @@ class Dataset(object):
         self._logger = logging.getLogger(__name__)
         self._shape = shape
         self._max_size = max_size
-        self._training_size = int(self._max_size * train_val_partition)
         self._as_grey = as_grey
         self._images = np.ndarray((self._max_size, self._shape[0],
                                    self._shape[1], 1 if self._as_grey else 3),
                                   dtype=np.float32)
         self._size = 0
+        self._train_val_partition = train_val_partition
+        self._training_size = int(self._size * self._train_val_partition)
 
     def add(self, image: np.ndarray) -> bool:
         """
@@ -43,6 +44,7 @@ class Dataset(object):
         if self._size < self._max_size:
             self._images[self._size] = image
             self._size += 1
+            self._training_size = int(self._size * self._train_val_partition)
             return True
         else:
             return False

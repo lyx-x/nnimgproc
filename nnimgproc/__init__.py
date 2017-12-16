@@ -24,15 +24,16 @@ def build_model(model: Any, backend: str) -> BaseModel:
     return lib.Model(model)
 
 
-def load_model(path: str, backend: str) -> BaseModel:
+def load_model(model: Any, path: str, backend: str) -> BaseModel:
     """
     Load a pre-trained model given the backend
+    :param model: any neural network models, may be None
     :param path: string, folder under which the old model is saved
     :param backend: string, name of the backend
     :return: Model (from nnimgproc.model)
     """
     lib = importlib.import_module('nnimgproc.backend.%s' % backend)
-    return lib.load(path)
+    return lib.load(model, path)
 
 
 def build_trainer(model: BaseModel,

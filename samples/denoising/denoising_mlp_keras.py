@@ -10,7 +10,6 @@ from typing import Dict, List, Tuple, Union
 
 from keras.layers import Input, Dense, Reshape, Flatten
 from keras.models import Model
-from keras.optimizers import Adam
 
 from nnimgproc import build_model, build_trainer, load_model
 from nnimgproc.dataset import ImageFolder
@@ -154,8 +153,6 @@ def main():
         # This creates a model that includes
         # the Input layer and three Dense layers
         model = Model(inputs=[input], outputs=[output])
-        model.compile(optimizer=Adam(lr=params.get('learning_rate')),
-                      loss='mse')
 
         model = build_model(model=model, backend='keras')
 
