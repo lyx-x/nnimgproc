@@ -16,7 +16,7 @@ def main():
                         help='Path to the image.')
     parser.add_argument('--output_folder', type=str, default='results',
                         help='Path to the output file')
-    parser.add_argument('--output_image', type=str, default='noisy.jpg',
+    parser.add_argument('--output_image', type=str, default='noisy.png',
                         help='File name of x output by TargetProcessor')
     parser.add_argument('--output_meta', type=str, default='meta.pkl',
                         help='Filename for meta')

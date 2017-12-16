@@ -86,6 +86,7 @@ class Trainer(BaseTrainer):
         self._epochs = self._params.get('epochs')
         self._train_batches = self._params.get('training_batches')
         self._val_batches = self._params.get('validation_batches')
+        self._loss = self._params.get('loss')
 
         self._logger.info('Trainer (%s) created.' % self._model.backend)
 
@@ -95,7 +96,8 @@ class Trainer(BaseTrainer):
         
         :return: 
         """
-        self._model.compile(optimizer=Adam(lr=self._learning_rate), loss='mse')
+        self._model.compile(optimizer=Adam(lr=self._learning_rate),
+                            loss=self._loss)
 
         tensorboard = TensorBoard(log_dir=self._output_dir,
                                   batch_size=self._minibatch)

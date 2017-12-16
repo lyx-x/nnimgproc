@@ -6,10 +6,10 @@ The backend should exposes:
     - Class: Model
     - Function: load
 """
-
 import numpy as np
 import os
 import time
+from typing import Any
 
 from chainer import Chain, Variable
 from chainer.cuda import to_cpu, to_gpu
@@ -27,6 +27,24 @@ from nnimgproc.util.parameters import Parameters
 BACKEND = str(os.path.basename(__file__).split('.')[0])
 # Name of the saved model file
 MODEL_FILENAME = 'model.h5'
+
+
+# Helper function to move a container of arrays to GPU or CPU
+def to_device(obj: Any, device: int) -> Any:
+    if device >= 0:
+        def move(x):
+            return Variable(to_gpu(x, device=device))
+    else:
+        def move(x):
+            return Variable(to_cpu(x))
+    if isinstance(obj, dict):
+        return dict(map(lambda a: (a[0], move(a[1])), obj.items()))
+    if isinstance(obj, list):
+        return list(map(move, obj))
+    if isinstance(obj, tuple):
+        return tuple(map(move, obj))
+    else:
+        return move(obj)
 
 
 class Model(BaseModel):
@@ -92,16 +110,8 @@ class Trainer(BaseTrainer):
 
         # Move the model to GPU if needed and set a move function for arrays
         if self._device >= 0:
-            self._model.model.to_gpu()
-            self._move = \
-                lambda x: \
-                dict(map(lambda a:
-                         (a[0], Variable(to_gpu((a[1]), self._device))),
-                         x.items())) \
-                if isinstance(x, dict) \
-                else Variable(to_gpu(x, self._device))
-        else:
-            self._move = lambda x: x
+            self._model.model.to_gpu(device=self._device)
+        self._move = lambda x: to_device(obj=x, device=self._device)
 
         self._logger.info('Trainer (%s) created.' % self._model.backend)
 

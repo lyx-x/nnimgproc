@@ -85,7 +85,7 @@ we do give some examples under the samples folder.
 
 - [x] Keras
 - [ ] Tensorflow
-- [ ] Chainer
+- [x] Chainer
 
 ## Examples
 
@@ -145,3 +145,15 @@ to visualize the training process. You can access the tensorboard at
 
 If you use docker and want to save the result into local file system, you
 will need to mount another folder when running the container.
+
+### Image de-streaking with convolutional neural network
+
+Under the `samples/destreaking` folder, we provide some scripts for training 
+simple neural network-based image de-streaker which is can be viewed as a
+post-processing method for Filtered Back Projection.
+To train and test a smaller version of it, please use the supplemented
+bash script. Other steps are identical to the one listed above.
+
+```
+bash samples/destreaking/run.sh
+```

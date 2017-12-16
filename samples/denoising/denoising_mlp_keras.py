@@ -128,6 +128,7 @@ def main():
     params.set('training_batches', args.training // args.minibatch)
     params.set('validation_batches', args.validation // args.minibatch)
     params.set('workers', args.workers)
+    params.set('loss', 'mse')
 
     logging.info("Parameters loaded.")
 

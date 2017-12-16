@@ -96,7 +96,7 @@ def main():
     parser.add_argument('--input', type=str, required=True,
                         help='Path to the noisy image.')
     parser.add_argument('--meta', type=str, help='Path to the meta file.')
-    parser.add_argument('--output', type=str, default='results/result.jpg',
+    parser.add_argument('--output', type=str, default='results/result.png',
                         help='Path to the output file.')
     parser.add_argument('--patch', type=int, default=17,
                         help='Patch size for the input.')
