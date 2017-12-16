@@ -21,6 +21,7 @@ from nnimgproc.dataset import Dataset
 from nnimgproc.model import BaseModel
 from nnimgproc.processor import TargetProcessor, BatchProcessor
 from nnimgproc.trainer import BaseTrainer
+from nnimgproc.util.extensions import TensorboardWriter
 from nnimgproc.util.parameters import Parameters
 
 # Name of the backend depends on the file name
@@ -121,6 +122,9 @@ class Trainer(BaseTrainer):
         
         :return: 
         """
+        # Initialize a tensorboard writer
+        tensorboard = TensorboardWriter(output=self._output_dir)
+
         # Choose an optimizer algorithm
         optimizer = Adam(alpha=self._learning_rate)
         optimizer.setup(self._model.model)
@@ -148,7 +152,7 @@ class Trainer(BaseTrainer):
 
         # Start training and timer
         start = time.time()
-        self._logger.info("Start training the keras model.")
+        self._logger.info("Start training the chainer model.")
 
         zero = np.zeros(1, np.float32)
         if self._device >= 0:
@@ -186,12 +190,14 @@ class Trainer(BaseTrainer):
                         break
                 loss_val = loss_val / self._val_batches
 
-                msg = 'epoch:{:02d} train_mse_loss:{:.04f} ' \
-                      'val_mse_loss:{:.04f}'.format(epoch,
-                                                    float(to_cpu(loss.data)),
-                                                    float(to_cpu(
-                                                        loss_val.data)))
+                loss = float(to_cpu(loss.data))
+                loss_val = float(to_cpu(loss_val.data))
+
+                msg = 'epoch:{:02d} train_loss:{:.04f} ' \
+                      'val_loss:{:.04f}'.format(epoch, loss, loss_val)
                 self._logger.info(msg)
+                tensorboard.add_entry('Training Loss', loss, epoch)
+                tensorboard.add_entry('Validation Loss', loss_val, epoch)
 
             if epoch >= self._epochs:
                 break
@@ -199,3 +205,5 @@ class Trainer(BaseTrainer):
         end = time.time()
         elapsed = end - start
         self._logger.info("End of training after %.3f seconds." % elapsed)
+
+        tensorboard.close()

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-data=./data
+data=/root/data
 out=./results/destreaking_cnn_chainer
 img=./data/lena.png
 mkdir -p ${out}
 
 # Visualization
-#tensorboard --logdir ${out} &
+tensorboard --logdir ${out} &
 
 # Resume training from a checkpoint
 python3 samples/destreaking/destreaking_cnn_chainer.py \
@@ -20,8 +20,8 @@ python3 samples/destreaking/destreaking_cnn_chainer.py \
     --learning_rate 0.0001 \
     --minibatch 32 \
     --epochs 10 \
-    --training 640 \
-    --validation 128 \
+    --training 64000 \
+    --validation 1280 \
     --workers 2
 
 # Generate a noisy image

@@ -130,15 +130,13 @@ bash script.
 
 ```
 mkdir results
-# if you have a folder containing full of images
-export DATA=#{PATH_TO_YOUR_FOLDER}
-# otherwise use images provided with the project
-export DATA=./data
-nvidia-docker run -v $DATA:/root/data -p 6006:6006 -it --rm nnimgproc:gpu bash
+export DATA=#{ABSOLUTE_PATH_TO_YOUR_DATA_FOLDER}
+export RESULT=#{ABSOLUTE_PATH_TO_YOUR_RESULT_FOLDER}
+nvidia-docker run -v $DATA:/root/data -v $RESULT:/root/nnimgproc/results -p 6006:6006 -it --rm nnimgproc:gpu bash
 bash samples/denoising/run.sh
 ```
 
-By default, the output are located at `./results/denoising_mlp_keras`. A 
+By default, the output are located at `$RESULT/denoising_mlp_keras`. A 
 tensorboard service is started in the background at the beginning
 to visualize the training process. You can access the tensorboard at
 [localhost:6006](http://localhost:6006).
