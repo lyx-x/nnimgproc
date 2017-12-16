@@ -126,10 +126,11 @@ simple neural network-based image denoiser. The default parameters are taken
 from Burger et al. 
 [[1]](http://people.tuebingen.mpg.de/burger/neural_denoising/cvpr2012.html).
 To train and test a smaller version of it, please use the supplemented
-bash script.
+bash script. The data folder should only contain images. The result folder
+can be anything, but make sure our default path won't overwrite your
+existing files.
 
 ```
-mkdir results
 export DATA=#{ABSOLUTE_PATH_TO_YOUR_DATA_FOLDER}
 export RESULT=#{ABSOLUTE_PATH_TO_YOUR_RESULT_FOLDER}
 nvidia-docker run -v $DATA:/root/data -v $RESULT:/root/nnimgproc/results -p 6006:6006 -it --rm nnimgproc:gpu bash
