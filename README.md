@@ -9,7 +9,11 @@ task with neural network. The usage of the module is very simple:
 4. Save and test the model
 
 Please read the following sections to understand how each component is
-declared and how to contribute to the project.
+declared and how to contribute to the project. The project currently includes
+the following running examples:
+
+* [Denoising / MLP / Keras](#image-denoising-with-multilayer-perceptron-in-keras)
+* [De-streaking / CNN / Chainer](#image-de-streaking-with-convolutional-neural-network-in-chainer)
 
 ## Components
 
@@ -119,7 +123,7 @@ pip3 install --user -e .  # cpu-only
 pip3 install --user -e '.[all]'  # gpu
 ```
 
-### Image denoising with multilayer perceptron
+### Image denoising with multilayer perceptron in Keras
 
 Under the `samples/denoising` folder, we provide some scripts for training 
 simple neural network-based image denoiser. The default parameters are taken
@@ -145,7 +149,7 @@ to visualize the training process. You can access the tensorboard at
 If you use docker and want to save the result into local file system, you
 will need to mount another folder when running the container.
 
-### Image de-streaking with convolutional neural network
+### Image de-streaking with convolutional neural network in Chainer
 
 Under the `samples/destreaking` folder, we provide some scripts for training 
 simple neural network-based image de-streaker which is can be viewed as a
