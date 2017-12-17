@@ -5,9 +5,6 @@ out=./results/denoising_mlp_keras
 img=./data/lena.png
 mkdir -p ${out}
 
-# Visualization
-tensorboard --logdir ${out} &
-
 # Resume training from a checkpoint
 python3 samples/denoising/denoising_mlp_keras.py \
     --output_dir ${out} \

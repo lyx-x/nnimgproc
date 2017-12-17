@@ -141,8 +141,8 @@ nvidia-docker run -v $DATA:/root/data -v $RESULT:/root/nnimgproc/results -p 6006
 bash samples/denoising/run.sh
 ```
 
-By default, the output are located at `$RESULT/denoising_mlp_keras`. A 
-tensorboard service is started in the background at the beginning
+By default, the output are located at `$RESULT/denoising_mlp_keras`. You can
+start a tensorboard at the beginning using `tensorboard --logdir [PATH]`
 to visualize the training process. You can access the tensorboard at
 [localhost:6006](http://localhost:6006).
 

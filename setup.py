@@ -1,8 +1,10 @@
 from distutils.core import setup
 
 extras = {
+    'keras': ['keras'],
     'tensorflow-gpu': ['tensorflow-gpu'],
-    'cupy': ['cupy'],
+    'chainer': ['chainer'],
+    'chainer-gpu': ['chainer', 'cupy'],
 }
 
 # Meta dependency groups.
@@ -25,9 +27,7 @@ setup(
                 'networks',
     extras_require=extras,
     install_requires=[
-        'chainer',
         'h5py',
-        'keras',
         'numpy',
         'scikit-image',
         'scipy',
