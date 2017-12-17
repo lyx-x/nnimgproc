@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-data=./data
+data=/root/data
 out=./results/destreaking_cnn_chainer
 img=./data/lena.png
 mkdir -p ${out}

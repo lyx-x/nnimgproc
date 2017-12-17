@@ -12,13 +12,14 @@ import time
 from typing import Any
 
 import keras
-from keras.callbacks import TensorBoard, ModelCheckpoint
+from keras.callbacks import ModelCheckpoint
 from keras.optimizers import Adam
 
 from nnimgproc.dataset import Dataset
 from nnimgproc.model import BaseModel
 from nnimgproc.processor import TargetProcessor, BatchProcessor
 from nnimgproc.trainer import BaseTrainer
+from nnimgproc.util.extensions import TensorboardWriter
 from nnimgproc.util.parameters import Parameters
 
 # Name of the backend depends on the file name
@@ -96,11 +97,24 @@ class Trainer(BaseTrainer):
         
         :return: 
         """
-        self._model.compile(optimizer=Adam(lr=self._learning_rate),
-                            loss=self._loss)
+        self._model.model.compile(optimizer=Adam(lr=self._learning_rate),
+                                  loss=self._loss)
 
-        tensorboard = TensorBoard(log_dir=self._output_dir,
-                                  batch_size=self._minibatch)
+        # Initialize a tensorboard writer
+        class TensorBoard(keras.callbacks.Callback):
+            def __init__(self, output: str):
+                super(TensorBoard, self).__init__()
+                self._tensorboard = TensorboardWriter(output=output)
+
+            def on_epoch_end(self, epoch, logs=None):
+                for l in ['loss', 'val_loss']:
+                    self._tensorboard.add_entry(l, logs.get(l), epoch)
+
+            def on_train_end(self, logs=None):
+                self._tensorboard.close()
+
+        tensorboard = TensorBoard(output=self._output_dir)
+
         checkpointer = ModelCheckpoint(filepath=os.path.join(self._output_dir,
                                                              MODEL_FILENAME))
 

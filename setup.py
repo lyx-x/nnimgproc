@@ -2,7 +2,7 @@ from distutils.core import setup
 
 extras = {
     'keras': ['keras'],
-    'tensorflow-gpu': ['tensorflow-gpu'],
+    'keras-gpu': ['keras', 'tensorflow-gpu'],
     'chainer': ['chainer'],
     'chainer-gpu': ['chainer', 'cupy'],
 }

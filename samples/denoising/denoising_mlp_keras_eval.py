@@ -110,7 +110,7 @@ def main():
     dataset = ImageSingleton(path=args.input, shape=(128, 128), as_grey=True)
 
     # Load the pretrained model
-    model = load_model(path=args.model, backend='keras')
+    model = load_model(model=None, path=args.model, backend='keras')
 
     # Define ModelProcessor
     patch = args.patch
