@@ -100,6 +100,18 @@ class Trainer(BaseTrainer):
         self._model.model.compile(optimizer=Adam(lr=self._learning_rate),
                                   loss=self._loss)
 
+        loss_names = []
+        if isinstance(self._loss, dict):
+            # If there are more than one output, there will be one loss per
+            # output, otherwise, there is one single loss, the overall one
+            if len(self._loss.keys()) > 1:
+                for l in self._loss.keys():
+                    loss_names.append(l + '_loss')
+                    loss_names.append('val_' + l + '_loss')
+
+        loss_names.append('loss')
+        loss_names.append('val_loss')
+
         # Initialize a tensorboard writer
         class TensorBoard(keras.callbacks.Callback):
             def __init__(self, output: str):
@@ -107,7 +119,7 @@ class Trainer(BaseTrainer):
                 self._tensorboard = TensorboardWriter(output=output)
 
             def on_epoch_end(self, epoch, logs=None):
-                for l in ['loss', 'val_loss']:
+                for l in loss_names:
                     self._tensorboard.add_entry(l, logs.get(l), epoch)
 
             def on_train_end(self, logs=None):
